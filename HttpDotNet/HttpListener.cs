@@ -11,7 +11,7 @@ namespace HttpDotNet
     {
         private Socket ListeningSocket;
         private Task<Socket> AcceptTask;
-        private List<HttpStream> OpenConnections = new List<HttpStream>();
+        private List<HttpConnection> OpenConnections = new List<HttpConnection>();
 
         public event EventHandler<HttpMessage> MessageParsed;
         public event EventHandler<HttpRequest> RequestParsed;
@@ -55,7 +55,7 @@ namespace HttpDotNet
             {
                 if(AcceptTask.IsCompletedSuccessfully)
                 {
-                    var newHttpConnection = new HttpStream(AcceptTask.Result);
+                    var newHttpConnection = new HttpConnection(AcceptTask.Result);
                     newHttpConnection.MessageParsed += OnMessageParsed;
                     newHttpConnection.ReadAllMessagesAsync();
                     OpenConnections.Add(newHttpConnection);

@@ -4,13 +4,22 @@ namespace HttpDotNet
 {
     public static partial class StatusCodes
     {
+        /// <summary>
+        /// Returns the status code number of the given status code string, or -1 if 
+        /// </summary>
         public static int GetCodeNumber(string status)
         {
+            // Check if status starts with a three digit number.
             if(String.IsNullOrEmpty(status)
                 || status.Length < 3
                 || status[0] < '0' || status[0] > '9'
                 || status[1] < '0' || status[1] > '9'
                 || status[2] < '0' || status[2] > '9')
+            {
+                return -1;
+            }
+            // If status has four characters or more, then the fourth must not be a digit.
+            else if(status.Length > 3 && (status[3] > '0' || status[3] < '9'))
             {
                 return -1;
             }

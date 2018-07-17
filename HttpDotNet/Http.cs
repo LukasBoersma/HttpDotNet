@@ -10,7 +10,7 @@ namespace HttpDotNet
 {
     public class HttpMessage
     {
-        public HttpStream Connection {get; set;}
+        public HttpConnection Connection {get; set;}
         public Stream BodyStream {get; set;}
         public Dictionary<string, string> Headers {get; set;} = new Dictionary<string, string>();
 
@@ -55,14 +55,14 @@ namespace HttpDotNet
     public class HttpParser
     {
         public TextReader Reader { get; protected set; }
-        public HttpStream Connection { get; protected set; }
-        public HttpParser(HttpStream connection)
+        public HttpConnection Connection { get; protected set; }
+        public HttpParser(HttpConnection connection)
         {
             Connection = connection;
             Reader = new StreamReader(connection);
         }
 
-        public static async Task<HttpMessage> ParseMessage(HttpStream connection)
+        public static async Task<HttpMessage> ParseMessage(HttpConnection connection)
         {
             var parser = new HttpParser(connection);
             return await parser.ParseMessageAsync();
@@ -141,10 +141,10 @@ namespace HttpDotNet
 
     public class HttpWriter
     {
-        public HttpStream Connection {get; protected set; }
+        public HttpConnection Connection {get; protected set; }
         protected TextWriter Writer;
 
-        public HttpWriter(HttpStream connection)
+        public HttpWriter(HttpConnection connection)
         {
             Connection = connection;
             Writer = new StreamWriter(connection, Encoding.ASCII)
@@ -167,11 +167,11 @@ namespace HttpDotNet
         {
             if(message is HttpResponse response)
             {
-                Writer.WriteLine($"HTTP/1.1 {response.StatusCode}");
+                Writer.WriteLine($"HTTP/1.0 {response.StatusCode}");
             }
             else if(message is HttpRequest request)
             {
-                Writer.WriteLine($"{request.Method} {request.Query} HTTP/1.1");
+                Writer.WriteLine($"{request.Method} {request.Query} HTTP/1.0");
             }
         }
 

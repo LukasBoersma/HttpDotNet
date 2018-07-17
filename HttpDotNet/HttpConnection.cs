@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace HttpDotNet
 {
-    public class HttpStream: NetworkStream
+    public class HttpConnection: NetworkStream
     {
-        public HttpStream(Socket socket): base(socket)
+        public HttpConnection(Socket socket): base(socket)
         {
             Writer = new HttpWriter(this);
         }
@@ -41,9 +41,16 @@ namespace HttpDotNet
             if(messageTask?.IsCompletedSuccessfully ?? false)
             {
                 MessageParsed?.Invoke(this, messageTask.Result);
-
                 ReadAllMessagesAsync();
             }
+        }
+
+        public HttpMessage ReadMessage()
+        {
+            var parser = new HttpParser(this);
+            var resultTask = parser.ParseMessageAsync();
+            resultTask.Wait();
+            return resultTask.Result;
         }
 
         public void WriteMessage(HttpMessage message)
@@ -56,11 +63,11 @@ namespace HttpDotNet
         public Socket NetworkSocket => Socket;
         public bool Connected => NetworkSocket.Connected;
 
-        public static HttpStream ConnectToServer(string hostName, int port = 80)
+        public static HttpConnection ConnectToServer(string hostName, int port = 80)
         {
             var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(hostName, port);
-            return new HttpStream(socket);
+            return new HttpConnection(socket);
         }
     }
 }
