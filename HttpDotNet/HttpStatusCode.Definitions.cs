@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 namespace HttpDotNet
 {
-    public static partial class StatusCodes
+    public static partial class HttpStatusCodes
     {
         public static readonly string Continue = "100 Continue";
         public static readonly string SwitchingProtocols = "101 Switching Protocols";

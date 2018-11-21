@@ -2,10 +2,10 @@ using System;
 
 namespace HttpDotNet
 {
-    public static partial class StatusCodes
+    public static partial class HttpStatusCodes
     {
         /// <summary>
-        /// Returns the status code number of the given status code string, or -1 if 
+        /// Returns the status code number of the given status code string, or -1 if the given string is not a valid HTTP status code.
         /// </summary>
         public static int GetCodeNumber(string status)
         {
@@ -19,7 +19,7 @@ namespace HttpDotNet
                 return -1;
             }
             // If status has four characters or more, then the fourth must not be a digit.
-            else if(status.Length > 3 && (status[3] > '0' || status[3] < '9'))
+            else if(status.Length > 3 && (status[3] >= '0' && status[3] <= '9'))
             {
                 return -1;
             }
