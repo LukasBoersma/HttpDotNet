@@ -9,6 +9,7 @@ namespace HttpDotNet
         static byte[] buffer = new byte[4096];
         public static string ReadLine(Stream rawStream)
         {
+            long totalBytesRead = 0;
             var line = new StringBuilder();
             bool foundLineEnd = false;
             bool foundFirstPartOfLineEnd = false;
@@ -18,10 +19,19 @@ namespace HttpDotNet
                 for(int bufferOffset = 0; bufferOffset < buffer.Length; ++bufferOffset)
                 {
                     var actualBytesRead = rawStream.Read(buffer, bufferOffset, 1);
+                    totalBytesRead += actualBytesRead;
+                    
                     if(actualBytesRead == 0)
                     {
-                        foundLineEnd = true;
-                        break;
+                        if(totalBytesRead == 0)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            foundLineEnd = true;
+                            break;
+                        }
                     }
                     
                     byteCountInBuffer += actualBytesRead;
