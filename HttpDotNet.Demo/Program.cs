@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -13,6 +13,13 @@ namespace HttpDotNet.Demo
             //Use the InvariantCulture locale, making sure this code produces the same results on every machine.
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
+            // HttpClient example
+            Console.WriteLine("Request to www.tagesschau.de gave this response:");
+            var result = HttpClient.GetString(new Uri("http://www.tagesschau.de"));
+            Console.WriteLine(result);
+
+            // HttpListener example
+            Console.WriteLine("Starting Server...");
             var server = new HttpListener();
 
             // Register the RequestParsed event so we can react to incoming requests
@@ -20,12 +27,12 @@ namespace HttpDotNet.Demo
             {
                 var remoteAddress = request.Connection.NetworkSocket.RemoteEndPoint;
                 // Generate the response body
-                var responseText = $"<h1>Hello, {remoteAddress}!</h1><p>You requested '{request.Query}', and this is your response.</p>";
+                var responseText = $"<h1>Hello, {remoteAddress}!</h1><p>You requested '{request.Query}', and this is your response.</p>\n";
                 var responseBytes = Encoding.UTF8.GetBytes(responseText);
 
                 // Create and configure a response object
                 var response = new HttpResponse();
-                response.StatusCode = StatusCodes.OK;
+                response.StatusCode = HttpStatusCodes.OK;
                 response["Content-Type"] = "text/html; charset=utf-8";
                 response["Content-Length"] = responseBytes.Length.ToString();
                 response.BodyStream = new MemoryStream(responseBytes);

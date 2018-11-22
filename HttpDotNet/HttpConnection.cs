@@ -9,7 +9,6 @@ namespace HttpDotNet
     {
         public HttpConnection(Socket socket): base(socket)
         {
-            Writer = new HttpWriter(this);
         }
 
         public event EventHandler<HttpMessage> MessageParsed;
@@ -55,10 +54,9 @@ namespace HttpDotNet
 
         public void WriteMessage(HttpMessage message)
         {
-            Writer.WriteMessage(message);
+            var writer = new HttpWriter(this);
+            writer.WriteMessage(message);
         }
-
-        public HttpWriter Writer { get; protected set; }
 
         public Socket NetworkSocket => Socket;
         public bool Connected => NetworkSocket.Connected;

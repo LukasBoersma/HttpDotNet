@@ -33,11 +33,31 @@ namespace HttpDotNet
         {
             BodyStream = stream;
         }
+        
+        public byte[] ReadBodyToEnd()
+        {
+            return BodyStream.ReadAllBytes();
+        }
 
         public string this[string headerName]
         {
-            get => Headers[headerName];
-            set => Headers[headerName] = value;
+            get => Headers[headerName.ToLower()];
+            set => Headers[headerName.ToLower()] = value;
+        }
+        
+        public bool TryGetHeader(string headerName, out string headerValue)
+        {
+            headerName = headerName.ToLower();
+            if(Headers.ContainsKey(headerName))
+            {
+                headerValue = Headers[headerName];
+                return true;
+            }
+            else
+            {
+                headerValue = null;
+                return false;
+            }
         }
     }
 
@@ -54,12 +74,12 @@ namespace HttpDotNet
     
     public class HttpParser
     {
-        public TextReader Reader { get; protected set; }
         public HttpConnection Connection { get; protected set; }
-        public HttpParser(HttpConnection connection)
+        public Stream RawStream { get; protected set; }
+        public HttpParser(Stream rawStream)
         {
-            Connection = connection;
-            Reader = new StreamReader(connection);
+            RawStream = rawStream;
+            Connection = rawStream as HttpConnection;
         }
 
         public static async Task<HttpMessage> ParseMessage(HttpConnection connection)
@@ -75,12 +95,26 @@ namespace HttpDotNet
                 throw new InvalidDataException("Reading HTTP greeting failed");
 
             message.Headers = await ReadAllHeaders();
+            
+            message.TryGetHeader("content-length", out var contentLengthString);
+            int? contentLength = null;
+            if(contentLengthString != null && int.TryParse(contentLengthString, out int contentLengthValue))
+            {
+                contentLength = contentLengthValue;
+            }
+            
+            message.TryGetHeader("transfer-encoding", out var transferEncodingString);
+            
+            var transferEncoding = HttpContentStream.EncodingFromHeaderValue(transferEncodingString);
+
+            message.BodyStream = HttpContentStream.Create(RawStream, transferEncoding, contentLength);
+
             return message;
         }
 
         protected async Task<HttpMessage> ReadGreeting()
         {
-            var greeting = await Reader.ReadLineAsync();
+            var greeting = HttpLineReader.ReadLine(RawStream);
             if(greeting == null)
                 return null;
 
@@ -92,7 +126,6 @@ namespace HttpDotNet
                 return new HttpRequest
                 {
                     Connection = Connection,
-                    BodyStream = Connection,
                     Method = method,
                     Query = query,
                 };
@@ -103,7 +136,6 @@ namespace HttpDotNet
                 return new HttpResponse
                 {
                     Connection = Connection,
-                    BodyStream = Connection,
                     StatusCode = statusCode,
                 };
             }
@@ -121,17 +153,19 @@ namespace HttpDotNet
         {
             var headers = new Dictionary<string, string>();
             string line;
-            while((line = await Reader.ReadLineAsync()) != null)
+            while((line = HttpLineReader.ReadLine(RawStream)) != null)
             {
                 Match headerMatch;
-
                 if(String.IsNullOrEmpty(line))
                 {
                     break;
                 }
                 else if((headerMatch = HeaderPattern.Match(line)).Success)
                 {
-                    headers[headerMatch.Groups["Name"].Value] = headerMatch.Groups["Value"].Value;
+                    // header names are always converted to lower case
+                    var headerName = headerMatch.Groups["Name"].Value.ToLower();
+                    var headerValue = headerMatch.Groups["Value"].Value;
+                    headers[headerName] = headerValue;
                 }
             }
 
