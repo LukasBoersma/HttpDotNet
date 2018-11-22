@@ -30,5 +30,14 @@ namespace HttpDotNet.Tests
             Assert.AreEqual(response.StatusCode, "200 OK");
             Assert.AreEqual(response.ReadBodyToEnd(), expectedBodyBytes);
         }
+        
+        [Test]
+        public void TestHttpReader_BrokenResponse()
+        {
+            var brokenResponseBytes = Encoding.ASCII.GetBytes("HTTP/1(/SHD(I)H");
+            Assert.Throws<InvalidDataException>(() => {
+                ParseMessage(brokenResponseBytes);
+            });
+        }
     }
 }

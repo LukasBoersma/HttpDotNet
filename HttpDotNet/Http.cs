@@ -76,6 +76,8 @@ namespace HttpDotNet
     {
         public HttpConnection Connection { get; protected set; }
         public Stream RawStream { get; protected set; }
+        public bool ThrowOnBadData { get; set; } = true;
+        
         public HttpParser(Stream rawStream)
         {
             RawStream = rawStream;
@@ -92,7 +94,16 @@ namespace HttpDotNet
         {
             var message = await ReadGreeting();
             if(message == null)
-                throw new InvalidDataException("Reading HTTP greeting failed");
+            {
+                if(ThrowOnBadData)
+                {
+                    throw new InvalidDataException("Reading HTTP greeting failed");
+                }
+                else
+                {
+                    return null;
+                }
+            }
 
             message.Headers = await ReadAllHeaders();
             
