@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace HttpDotNet
 {
-    public class HttpConnection: NetworkStream
+    public class HttpRawConnectionStream: NetworkStream
     {
-        public HttpConnection(Socket socket): base(socket)
+        public HttpRawConnectionStream(Socket socket): base(socket)
         {
         }
 
@@ -61,11 +61,11 @@ namespace HttpDotNet
         public Socket NetworkSocket => Socket;
         public bool Connected => NetworkSocket.Connected;
 
-        public static HttpConnection ConnectToServer(string hostName, int port = 80)
+        public static HttpRawConnectionStream ConnectToServer(string hostName, int port = 80)
         {
             var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(hostName, port);
-            return new HttpConnection(socket);
+            return new HttpRawConnectionStream(socket);
         }
     }
 }

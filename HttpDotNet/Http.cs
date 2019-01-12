@@ -10,7 +10,7 @@ namespace HttpDotNet
 {
     public class HttpMessage
     {
-        public HttpConnection Connection {get; set;}
+        public HttpRawConnectionStream Connection {get; set;}
         public Stream BodyStream {get; set;}
         public Dictionary<string, string> Headers {get; set;} = new Dictionary<string, string>();
 
@@ -74,17 +74,17 @@ namespace HttpDotNet
     
     public class HttpParser
     {
-        public HttpConnection Connection { get; protected set; }
+        public HttpRawConnectionStream Connection { get; protected set; }
         public Stream RawStream { get; protected set; }
         public bool ThrowOnBadData { get; set; } = true;
         
         public HttpParser(Stream rawStream)
         {
             RawStream = rawStream;
-            Connection = rawStream as HttpConnection;
+            Connection = rawStream as HttpRawConnectionStream;
         }
 
-        public static async Task<HttpMessage> ParseMessage(HttpConnection connection)
+        public static async Task<HttpMessage> ParseMessage(HttpRawConnectionStream connection)
         {
             var parser = new HttpParser(connection);
             return await parser.ParseMessageAsync();
@@ -186,10 +186,10 @@ namespace HttpDotNet
 
     public class HttpWriter
     {
-        public HttpConnection Connection {get; protected set; }
+        public HttpRawConnectionStream Connection {get; protected set; }
         protected TextWriter Writer;
 
-        public HttpWriter(HttpConnection connection)
+        public HttpWriter(HttpRawConnectionStream connection)
         {
             Connection = connection;
             Writer = new StreamWriter(connection, Encoding.ASCII)

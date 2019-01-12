@@ -7,10 +7,10 @@ namespace HttpDotNet
 {
     public class HttpClient: IDisposable
     {
-        private HttpConnection Connection;
+        private HttpRawConnectionStream Connection;
         public HttpClient(string hostName, int port = 80)
         {
-            Connection = HttpConnection.ConnectToServer(hostName, port);
+            Connection = HttpRawConnectionStream.ConnectToServer(hostName, port);
         }
 
         public HttpResponse SendRequest(HttpRequest request)
