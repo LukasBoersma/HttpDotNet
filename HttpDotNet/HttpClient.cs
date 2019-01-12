@@ -34,7 +34,7 @@ namespace HttpDotNet
                 port = uri.Port;
             }
 
-            var query = uri.Query;
+            var query = uri.PathAndQuery;
             if(String.IsNullOrEmpty(query))
             {
                 query = "/";
