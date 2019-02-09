@@ -68,6 +68,17 @@ namespace HttpDotNet
     
     public class HttpRequest: HttpMessage
     {
+        public static bool SetDefaultHeaderForAcceptEncoding { get; set; } = true;
+
+        public HttpRequest()
+        {
+            if(SetDefaultHeaderForAcceptEncoding)
+            {
+                Headers["Accept-Encoding"] = "gzip,identity";
+                Headers["TE"] = "chunked,gzip,identity";
+            }
+        }
+
         public string Method;
         public string Query;
     }
@@ -115,10 +126,12 @@ namespace HttpDotNet
             }
             
             message.TryGetHeader("transfer-encoding", out var transferEncodingString);
-            
-            var transferEncoding = HttpContentStream.EncodingFromHeaderValue(transferEncodingString);
+            var transferEncoding = HttpTransferStream.EncodingFromHeaderValue(transferEncodingString);
+            var transferStream = HttpTransferStream.Create(RawStream, transferEncoding, contentLength);
 
-            message.BodyStream = HttpContentStream.Create(RawStream, transferEncoding, contentLength);
+            message.TryGetHeader("content-encoding", out var contentEncodingString);
+            var contentEncoding = HttpContentStream.EncodingFromHeaderValue(contentEncodingString);
+            message.BodyStream = HttpContentStream.Create(transferStream, contentEncoding, contentLength);
 
             return message;
         }

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.IO;
+using System.IO.Compression;
 
 namespace HttpDotNet
 {
@@ -10,6 +11,7 @@ namespace HttpDotNet
     {
         Identity,
         Chunked,
+        Gzip,
         Unsupported
     }
 
@@ -27,6 +29,8 @@ namespace HttpDotNet
                     return HttpTransferEncoding.Identity;
                 case "chunked":
                     return HttpTransferEncoding.Chunked;
+                case "gzip":
+                    return HttpTransferEncoding.Gzip;
                 default:
                     return HttpTransferEncoding.Unsupported;
             }
@@ -49,6 +53,8 @@ namespace HttpDotNet
                     return new HttpTransferStreamIdentity(rawStream, contentLength);
                 case HttpTransferEncoding.Chunked:
                     return new HttpTransferStreamChunked(rawStream, contentLength);
+                case HttpTransferEncoding.Gzip:
+                    return new HttpTransferStreamGzip(rawStream, contentLength);
                 default:
                     throw new NotImplementedException($"Transfer encoding {encoding} is not implemented.");
             }
@@ -89,6 +95,32 @@ namespace HttpDotNet
             // Todo: count already read bytes from previous Read calls and use it to compute remaining expected length
             int maxLength = (int)Math.Min(length, ContentLength ?? length);
             int actualLength = RawStream.Read(buffer, offset, maxLength);
+            return actualLength;
+        }
+    }
+
+    public class HttpTransferStreamGzip: HttpTransferStream
+    {
+        GZipStream GZip;
+        
+        public HttpTransferStreamGzip(Stream rawStream, long? contentLength): base(rawStream, contentLength)
+        {
+            GZip = new GZipStream(rawStream, CompressionMode.Decompress);
+        }
+
+        public override bool CanRead => RawStream.CanRead;
+
+        public override long Position 
+        {
+            get => GZip.Position;
+            set => throw new NotSupportedException("Cannot seek in gzipped streams.");
+        }
+
+        public override int Read(byte[] buffer, int offset, int length)
+        {
+            // Todo: count already read bytes from previous Read calls and use it to compute remaining expected length
+            int maxLength = (int)Math.Min(length, ContentLength ?? length);
+            int actualLength = GZip.Read(buffer, offset, maxLength);
             return actualLength;
         }
     }

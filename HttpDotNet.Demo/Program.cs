@@ -14,8 +14,8 @@ namespace HttpDotNet.Demo
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
             // HttpClient example
-            Console.WriteLine("Request to www.tagesschau.de gave this response:");
-            var result = HttpClient.GetString(new Uri("http://www.tagesschau.de"));
+            Console.WriteLine("Request to http://jigsaw.w3.org/HTTP/ChunkedScript gave this response:");
+            var result = HttpClient.GetString(new Uri("http://jigsaw.w3.org/HTTP/ChunkedScript"));
             Console.WriteLine(result);
 
             // HttpListener example
