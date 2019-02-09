@@ -10,10 +10,10 @@ namespace HttpDotNet
     {
         Identity,
         Chunked,
-        Gzip
+        Unsupported
     }
 
-    public abstract class HttpContentStream: Stream
+    public abstract class HttpTransferStream: Stream
     {
         public static HttpTransferEncoding EncodingFromHeaderValue(string encodingValue)
         {
@@ -27,30 +27,28 @@ namespace HttpDotNet
                     return HttpTransferEncoding.Identity;
                 case "chunked":
                     return HttpTransferEncoding.Chunked;
-                case "gzip":
-                    return HttpTransferEncoding.Gzip;
                 default:
-                    throw new InvalidDataException("Transfer Encoding not understood or not supported.");
+                    return HttpTransferEncoding.Unsupported;
             }
         }
         
         public Stream RawStream { get; protected set; }
         public long? ContentLength { get; protected set; }
 
-        public HttpContentStream(Stream rawStream, long? contentLength)
+        public HttpTransferStream(Stream rawStream, long? contentLength)
         {
             RawStream = rawStream;
             ContentLength = contentLength;
         }
         
-        public static HttpContentStream Create(Stream rawStream, HttpTransferEncoding encoding, long? contentLength)
+        public static HttpTransferStream Create(Stream rawStream, HttpTransferEncoding encoding, long? contentLength)
         {
             switch(encoding)
             {
                 case HttpTransferEncoding.Identity:
-                    return new HttpContentStreamIdentity(rawStream, contentLength);
+                    return new HttpTransferStreamIdentity(rawStream, contentLength);
                 case HttpTransferEncoding.Chunked:
-                    return new HttpContentStreamChunked(rawStream, contentLength);
+                    return new HttpTransferStreamChunked(rawStream, contentLength);
                 default:
                     throw new NotImplementedException($"Transfer encoding {encoding} is not implemented.");
             }
@@ -80,9 +78,9 @@ namespace HttpDotNet
         }
     }
     
-    public class HttpContentStreamIdentity: HttpContentStream
+    public class HttpTransferStreamIdentity: HttpTransferStream
     {
-        public HttpContentStreamIdentity(Stream rawStream, long? contentLength): base(rawStream, contentLength)
+        public HttpTransferStreamIdentity(Stream rawStream, long? contentLength): base(rawStream, contentLength)
         {
         }
 
@@ -95,9 +93,9 @@ namespace HttpDotNet
         }
     }
     
-    public class HttpContentStreamChunked: HttpContentStream
+    public class HttpTransferStreamChunked: HttpTransferStream
     {
-        public HttpContentStreamChunked(Stream rawStream, long? contentLength): base(rawStream, contentLength)
+        public HttpTransferStreamChunked(Stream rawStream, long? contentLength): base(rawStream, contentLength)
         {
             ContentLength = contentLength;
         }
