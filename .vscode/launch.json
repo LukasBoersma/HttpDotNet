@@ -5,13 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "HttpDotNet.Samples.Client",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/HttpDotNet.Demo/bin/Debug/netcoreapp2.0/HttpDotNet.Demo.dll",
+            "program": "${workspaceFolder}/HttpDotNet.Samples/HttpDotNet.Samples.Client/bin/Debug/netcoreapp2.0/HttpDotNet.Samples.Client.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/HttpDotNet.Demo",
+            "cwd": "${workspaceFolder}/HttpDotNet.Samples/HttpDotNet.Samples.Client",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "name": "HttpDotNet.Samples.Server",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/HttpDotNet.Samples/HttpDotNet.Samples.Server/bin/Debug/netcoreapp2.0/HttpDotNet.Samples.Server.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/HttpDotNet.Samples/HttpDotNet.Samples.Server",
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
