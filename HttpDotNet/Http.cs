@@ -125,7 +125,7 @@ namespace HttpDotNet
 
         protected async Task<HttpMessage> ReadGreeting()
         {
-            var greeting = HttpLineReader.ReadLine(RawStream);
+            var greeting = await HttpLineReader.ReadLineAsync(RawStream);
             if(greeting == null)
                 return null;
 
@@ -164,7 +164,7 @@ namespace HttpDotNet
         {
             var headers = new Dictionary<string, string>();
             string line;
-            while((line = HttpLineReader.ReadLine(RawStream)) != null)
+            while((line = await HttpLineReader.ReadLineAsync(RawStream)) != null)
             {
                 Match headerMatch;
                 if(String.IsNullOrEmpty(line))
