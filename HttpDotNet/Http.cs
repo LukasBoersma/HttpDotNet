@@ -69,13 +69,19 @@ namespace HttpDotNet
     public class HttpRequest: HttpMessage
     {
         public static bool SetDefaultHeaderForAcceptEncoding { get; set; } = true;
+        public static bool SetDefaultHeaderForKeepAlive { get; set; } = true;
 
         public HttpRequest()
         {
             if(SetDefaultHeaderForAcceptEncoding)
             {
-                Headers["Accept-Encoding"] = "gzip,identity";
-                Headers["TE"] = "chunked,gzip,identity";
+                Headers["accept-encoding"] = "gzip,identity";
+                Headers["te"] = "chunked,gzip,identity";
+            }
+            if(SetDefaultHeaderForKeepAlive)
+            {
+                Headers["connection"] = "keep-alive";
+                Headers["te"] = "chunked,gzip,identity";
             }
         }
 
@@ -125,6 +131,7 @@ namespace HttpDotNet
                 contentLength = contentLengthValue;
             }
             
+            // Handle encodings
             message.TryGetHeader("transfer-encoding", out var transferEncodingString);
             var transferEncoding = HttpTransferStream.EncodingFromHeaderValue(transferEncodingString);
             var transferStream = HttpTransferStream.Create(RawStream, transferEncoding, contentLength);
@@ -132,6 +139,16 @@ namespace HttpDotNet
             message.TryGetHeader("content-encoding", out var contentEncodingString);
             var contentEncoding = HttpContentStream.EncodingFromHeaderValue(contentEncodingString);
             message.BodyStream = HttpContentStream.Create(transferStream, contentEncoding, contentLength);
+
+            // Pass Keep-Alive information to HttpRawConnectionStream
+            message.TryGetHeader("connection", out var connectionHeaderString);
+            if(Connection != null)
+            {
+                // If the header "Connection" contains "keep-alive" in its header list, the http connection is set to keep-alive
+                // Whenever we encounter a message without keep-alive set, the keep-alive is disabled for the connection and it will
+                // be closed after receiving the message.
+                Connection.KeepAlive = KeepAliveHeaderPattern.IsMatch(connectionHeaderString.ToLower());
+            }
 
             return message;
         }
@@ -172,6 +189,7 @@ namespace HttpDotNet
         static readonly Regex HeaderPattern = new Regex(@"^(?<Name>[a-zA-Z0-9\-]+)[ \t]*:[ \t]*(?<Value>.*)$");
         static readonly Regex RequestGreetingPattern = new Regex(@"^(?<Method>[A-Z]+) (?<Query>[a-zA-Z0-9\-_./%+]*) HTTP/1\.(0|1)$");
         static readonly Regex ResponseGreetingPattern = new Regex(@"^HTTP/1\.(0|1) (?<StatusCode>[0-9]+ [A-Za-z\- ]+)$");
+        static readonly Regex KeepAliveHeaderPattern = new Regex(@"^([a-z,\-]+,)?keep-alive(,[a-z,\-]+)?$");
 
         protected async Task<Dictionary<string, string>> ReadAllHeaders()
         {
@@ -225,11 +243,11 @@ namespace HttpDotNet
         {
             if(message is HttpResponse response)
             {
-                Writer.WriteLine($"HTTP/1.0 {response.StatusCode}");
+                Writer.WriteLine($"HTTP/1.1 {response.StatusCode}");
             }
             else if(message is HttpRequest request)
             {
-                Writer.WriteLine($"{request.Method} {request.Query} HTTP/1.0");
+                Writer.WriteLine($"{request.Method} {request.Query} HTTP/1.1");
             }
         }
 

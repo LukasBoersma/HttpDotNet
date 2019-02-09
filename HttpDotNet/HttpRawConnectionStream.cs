@@ -48,7 +48,6 @@ namespace HttpDotNet
         {
             var parser = new HttpParser(this);
             var resultTask = parser.ParseMessageAsync();
-            resultTask.Wait();
             return resultTask.Result;
         }
 
@@ -60,6 +59,8 @@ namespace HttpDotNet
 
         public Socket NetworkSocket => Socket;
         public bool Connected => NetworkSocket.Connected;
+
+        public bool KeepAlive { get; set; } = false;
 
         public static HttpRawConnectionStream ConnectToServer(string hostName, int port = 80)
         {
