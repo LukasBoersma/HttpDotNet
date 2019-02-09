@@ -4,22 +4,14 @@ using System.Net;
 using System.Text;
 using System.Threading;
 
-namespace HttpDotNet.Demo
+namespace HttpDotNet.Samples.Server
 {
     class Program
     {
         static void Main(string[] args)
         {
-            //Use the InvariantCulture locale, making sure this code produces the same results on every machine.
-            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
-
-            // HttpClient example
-            Console.WriteLine("Request to http://jigsaw.w3.org/HTTP/ChunkedScript gave this response:");
-            var result = HttpClient.GetString(new Uri("http://jigsaw.w3.org/HTTP/ChunkedScript"));
-            Console.WriteLine(result);
-
             // HttpListener example
-            Console.WriteLine("Starting Server...");
+            Console.WriteLine("Starting Server. You can reach it from your browser here: http://localhost:8888");
             var server = new HttpListener();
 
             // Register the RequestParsed event so we can react to incoming requests

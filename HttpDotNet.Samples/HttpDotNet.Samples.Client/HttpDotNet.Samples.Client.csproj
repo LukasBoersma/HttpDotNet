@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HttpDotNet\HttpDotNet.csproj" />
+    <ProjectReference Include="..\..\HttpDotNet\HttpDotNet.csproj" />
   </ItemGroup>
 
 </Project>
