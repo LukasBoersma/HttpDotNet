@@ -41,7 +41,17 @@ namespace HttpDotNet
 
         public string this[string headerName]
         {
-            get => Headers[headerName.ToLower()];
+            get
+            {
+                if(TryGetHeader(headerName.ToLower(), out string header))
+                {
+                    return header;
+                }
+                else
+                {
+                    return null;
+                }
+            }
             set => Headers[headerName.ToLower()] = value;
         }
         
