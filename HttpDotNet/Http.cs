@@ -10,7 +10,7 @@ namespace HttpDotNet
 {
     public class HttpMessage
     {
-        public HttpRawConnectionStream Connection {get; set;}
+        public HttpConnectionStream Connection {get; set;}
         public Stream BodyStream {get; set;}
         public Dictionary<string, string> Headers {get; set;} = new Dictionary<string, string>();
 
@@ -59,6 +59,19 @@ namespace HttpDotNet
                 return false;
             }
         }
+
+        public static HttpMessage ReadMessage(Stream stream)
+        {
+            var parser = new HttpParser(stream);
+            var resultTask = parser.ParseMessageAsync();
+            return resultTask.Result;
+        }
+
+        public void WriteToStream(Stream stream)
+        {
+            var writer = new HttpWriter(stream);
+            writer.WriteMessage(this);
+        }
     }
 
     public class HttpResponse: HttpMessage
@@ -81,7 +94,6 @@ namespace HttpDotNet
             if(SetDefaultHeaderForKeepAlive)
             {
                 Headers["connection"] = "keep-alive";
-                Headers["te"] = "chunked,gzip,identity";
             }
         }
 
@@ -91,17 +103,17 @@ namespace HttpDotNet
     
     public class HttpParser
     {
-        public HttpRawConnectionStream Connection { get; protected set; }
+        public HttpConnectionStream Connection { get; protected set; }
         public Stream RawStream { get; protected set; }
         public bool ThrowOnBadData { get; set; } = true;
         
         public HttpParser(Stream rawStream)
         {
             RawStream = rawStream;
-            Connection = rawStream as HttpRawConnectionStream;
+            Connection = rawStream as HttpConnectionStream;
         }
 
-        public static async Task<HttpMessage> ParseMessage(HttpRawConnectionStream connection)
+        public static async Task<HttpMessage> ParseMessage(HttpConnectionStream connection)
         {
             var parser = new HttpParser(connection);
             return await parser.ParseMessageAsync();
@@ -217,13 +229,15 @@ namespace HttpDotNet
 
     public class HttpWriter
     {
-        public HttpRawConnectionStream Connection {get; protected set; }
+        public HttpConnectionStream Connection {get; protected set; }
+        public Stream RawStream {get; protected set; }
         protected TextWriter Writer;
 
-        public HttpWriter(HttpRawConnectionStream connection)
+        public HttpWriter(Stream rawStream)
         {
-            Connection = connection;
-            Writer = new StreamWriter(connection, Encoding.ASCII)
+            Connection = rawStream as HttpConnectionStream;
+            RawStream = rawStream;
+            Writer = new StreamWriter(rawStream, Encoding.ASCII)
             {
                 NewLine = "\n"
             };
@@ -235,8 +249,8 @@ namespace HttpDotNet
             WriteHeaders(message);
             Writer.WriteLine("");
             Writer.Flush();
-            message.BodyStream?.CopyTo(Connection);
-            Connection.Flush();
+            message.BodyStream?.CopyTo(RawStream);
+            RawStream.Flush();
         }
 
         protected void WriteGreeting(HttpMessage message)

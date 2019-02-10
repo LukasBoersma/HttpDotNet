@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -7,28 +8,57 @@ namespace HttpDotNet
 {
     public class HttpClient: IDisposable
     {
-        private HttpRawConnectionStream Connection;
-        public HttpClient(string hostName, int port = 80)
+        private HttpConnectionStream Connection;
+        private Stream RawStream;
+
+        public HttpClient(string hostName, int port = -1, HttpProtocol protocol = HttpProtocol.Auto)
         {
-            Connection = HttpRawConnectionStream.ConnectToServer(hostName, port);
+            Connection = HttpConnectionStream.ConnectToServer(hostName, port, protocol);
+            RawStream = Connection;
+        }
+
+        public HttpClient(Stream customStream)
+        {
+            // If the given stream is a HttpConnectionStream set it as the connection, otherwise leave connection null;
+            Connection = customStream as HttpConnectionStream;
+            RawStream = customStream;
         }
 
         public HttpResponse SendRequest(HttpRequest request)
         {
-            Connection.WriteMessage(request);
-            return Connection.ReadMessage() as HttpResponse;
+            if(Connection != null)
+            {
+                Connection.WriteMessage(request);
+                return Connection.ReadMessage() as HttpResponse;
+            }
+            else
+            {
+                var writer = new HttpWriter(RawStream);
+                writer.WriteMessage(request);
+                var parser = new HttpParser(RawStream);
+                return parser.ParseMessageAsync().Result as HttpResponse;
+            }
         }
 
-        public static HttpResponse SendRequest(string hostName, int port, HttpRequest request)
+        public static HttpResponse SendRequest(HttpRequest request, string hostName, int port = -1, HttpProtocol protocol = HttpProtocol.Auto)
         {
-            var client = new HttpClient(hostName, port);
+            var client = new HttpClient(hostName, port, protocol);
             return client.SendRequest(request);
         }
+
         #region  Convenience methods
 
         public static HttpResponse GetResponse(Uri uri)
         {
             int port = 80;
+            var protocol = HttpProtocol.Http;
+            
+            if(uri.Scheme.ToLower() == "https")
+            {
+                protocol = HttpProtocol.Https;
+                port = 443;
+            }
+
             if(uri.Port != -1)
             {
                 port = uri.Port;
@@ -48,7 +78,7 @@ namespace HttpDotNet
 
             request["Host"] = uri.Host;
 
-            return SendRequest(uri.Host, port, request);
+            return SendRequest(request, uri.Host, port, protocol);
         }
 
         private static bool GetContentLength(HttpResponse response, out int contentLength)

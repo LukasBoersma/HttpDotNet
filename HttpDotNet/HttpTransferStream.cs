@@ -70,6 +70,12 @@ namespace HttpDotNet
         public override void Write (byte[] buffer, int offset, int count)
             => throw new NotSupportedException("HttpContentStream is read-only.");
 
+        public override void Close()
+        {
+            base.Close();
+            RawStream.Close();
+        }
+
         public virtual bool HasLength => ContentLength != null;
         public override long Length => ContentLength ?? throw new NotSupportedException("This HttpContentStream has unknown length. Check HasLength before reading the Length property.");
 
@@ -86,15 +92,33 @@ namespace HttpDotNet
     
     public class HttpTransferStreamIdentity: HttpTransferStream
     {
+        long? RemainingContentLength;
         public HttpTransferStreamIdentity(Stream rawStream, long? contentLength): base(rawStream, contentLength)
         {
+            RemainingContentLength = contentLength;
         }
 
         public override int Read(byte[] buffer, int offset, int length)
         {
-            // Todo: count already read bytes from previous Read calls and use it to compute remaining expected length
-            int maxLength = (int)Math.Min(length, ContentLength ?? length);
+            if(RemainingContentLength != null && RemainingContentLength <= 0)
+            {
+                Close();
+                return 0;
+            }
+
+            int maxLength = (int)Math.Min(length, RemainingContentLength ?? length);
             int actualLength = RawStream.Read(buffer, offset, maxLength);
+            
+            if(RemainingContentLength != null)
+            {
+                RemainingContentLength -= actualLength;
+            }
+
+            if(actualLength == 0)
+            {
+                Close();
+            }
+
             return actualLength;
         }
     }
@@ -134,9 +158,16 @@ namespace HttpDotNet
         
         long CurrentChunkLength = 0;
         long CurrentChunkRemaining = 0;
+
+        bool EndOfDataReached = false;
         
         public override int Read(byte[] buffer, int offset, int length)
         {
+            if(EndOfDataReached)
+            {
+                return 0;
+            }
+
             int totalRead = 0;
             
             while(totalRead < length)
@@ -150,8 +181,12 @@ namespace HttpDotNet
                     }
                     
                     NextChunk();
+
+                    // Chunk length zero means end of data.
                     if(CurrentChunkLength == 0)
                     {
+                        Close();
+                        EndOfDataReached = true;
                         break;
                     }
                 }

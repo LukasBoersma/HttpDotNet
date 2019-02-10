@@ -39,7 +39,8 @@ namespace HttpDotNet.Tests
             var response = message as HttpResponse;
             Assert.NotNull(response);
             Assert.NotNull(response.BodyStream);
-            Assert.IsInstanceOf<HttpTransferStreamChunked>(response.BodyStream);
+            Assert.IsInstanceOf<HttpContentStreamIdentity>(response.BodyStream);
+            Assert.IsInstanceOf<HttpTransferStreamChunked>((response.BodyStream as HttpContentStreamIdentity).RawStream);
             var body = response.ReadBodyToEnd();
             Assert.AreEqual(1, body.Length);
             Assert.AreEqual("x", Encoding.ASCII.GetString(body));

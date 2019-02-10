@@ -109,9 +109,18 @@ namespace HttpDotNet
 
         public override int Read(byte[] buffer, int offset, int length)
         {
+            if(!GZip.CanRead)
+                return 0;
+
             // Todo: count already read bytes from previous Read calls and use it to compute remaining expected length
             int maxLength = (int)Math.Min(length, ContentLength ?? length);
             int actualLength = GZip.Read(buffer, offset, maxLength);
+
+            if(actualLength == 0)
+            {
+                Close();
+            }
+
             return actualLength;
         }
     }
