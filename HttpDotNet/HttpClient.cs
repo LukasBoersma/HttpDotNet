@@ -48,6 +48,7 @@ namespace HttpDotNet
 
         #region  Convenience methods
 
+        public static HttpResponse GetResponse(string uri) => GetResponse(new Uri(uri))
         public static HttpResponse GetResponse(Uri uri)
         {
             int port = 80;
@@ -94,6 +95,8 @@ namespace HttpDotNet
             return false;
         }
 
+        public static byte[] GetBytes(string uri) => GetBytes(new Uri(uri));
+
         public static byte[] GetBytes(Uri uri)
         {
             HttpResponse response = GetResponse(uri);
@@ -117,6 +120,8 @@ namespace HttpDotNet
         }
 
         private static Regex CharsetRegex = new Regex(@"^.+; ?charset=(<charsetName>.+)$");
+
+        public static string GetString(string uri, Encoding encoding = null) => GetString(new Uri(uri), encoding);
         public static string GetString(Uri uri, Encoding encoding = null)
         {
             HttpResponse response = GetResponse(uri);
