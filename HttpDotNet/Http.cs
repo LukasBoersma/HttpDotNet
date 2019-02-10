@@ -77,7 +77,7 @@ namespace HttpDotNet
             return resultTask.Result;
         }
 
-        public void WriteToStream(Stream stream)
+        public void WriteMessageToStream(Stream stream)
         {
             var writer = new HttpWriter(stream);
             writer.WriteMessage(this);

@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "HttpDotNet.Samples.Client",
             "type": "coreclr",
@@ -24,6 +25,18 @@
             "program": "${workspaceFolder}/HttpDotNet.Samples/HttpDotNet.Samples.Server/bin/Debug/netcoreapp2.0/HttpDotNet.Samples.Server.dll",
             "args": [],
             "cwd": "${workspaceFolder}/HttpDotNet.Samples/HttpDotNet.Samples.Server",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "name": "HttpDotNet.Samples.FileDownload",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/HttpDotNet.Samples/HttpDotNet.Samples.FileDownload/bin/Debug/netcoreapp2.0/HttpDotNet.Samples.FileDownload.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/HttpDotNet.Samples/HttpDotNet.Samples.FileDownload",
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"

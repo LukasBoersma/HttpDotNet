@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpDotNet.Samples.Client",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpDotNet.Samples.Server", "HttpDotNet.Samples\HttpDotNet.Samples.Server\HttpDotNet.Samples.Server.csproj", "{D354EB81-2398-4573-9196-23CE990215E8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpDotNet.Samples.FileDownload", "HttpDotNet.Samples\HttpDotNet.Samples.FileDownload\HttpDotNet.Samples.FileDownload.csproj", "{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{D354EB81-2398-4573-9196-23CE990215E8}.Release|x64.Build.0 = Release|x64
 		{D354EB81-2398-4573-9196-23CE990215E8}.Release|x86.ActiveCfg = Release|x86
 		{D354EB81-2398-4573-9196-23CE990215E8}.Release|x86.Build.0 = Release|x86
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Debug|x64.ActiveCfg = Debug|x64
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Debug|x64.Build.0 = Debug|x64
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Debug|x86.ActiveCfg = Debug|x86
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Debug|x86.Build.0 = Debug|x86
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Release|x64.ActiveCfg = Release|x64
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Release|x64.Build.0 = Release|x64
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Release|x86.ActiveCfg = Release|x86
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,5 +79,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{35C083CF-302E-43B8-A593-C1CEED820390} = {3A5247E9-11C8-4CDE-8F3C-489CBFB5C736}
 		{D354EB81-2398-4573-9196-23CE990215E8} = {3A5247E9-11C8-4CDE-8F3C-489CBFB5C736}
+		{65DB5120-5DF0-42D8-BAA8-1128BACBB1D5} = {3A5247E9-11C8-4CDE-8F3C-489CBFB5C736}
 	EndGlobalSection
 EndGlobal

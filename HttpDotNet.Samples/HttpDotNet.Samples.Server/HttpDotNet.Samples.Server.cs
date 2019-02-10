@@ -20,14 +20,12 @@ namespace HttpDotNet.Samples.Server
                 var remoteAddress = request.Connection.NetworkSocket.RemoteEndPoint;
                 // Generate the response body
                 var responseText = $"<h1>Hello, {remoteAddress}!</h1><p>You requested '{request.Query}', and this is your response.</p>\n";
-                var responseBytes = Encoding.UTF8.GetBytes(responseText);
 
                 // Create and configure a response object
                 var response = new HttpResponse();
                 response.StatusCode = HttpStatusCodes.OK;
                 response["Content-Type"] = "text/html; charset=utf-8";
-                response["Content-Length"] = responseBytes.Length.ToString();
-                response.BodyStream = new MemoryStream(responseBytes);
+                response.SetBody(responseText);
 
                 // Send the response to the client
                 request.Connection.WriteMessage(response);

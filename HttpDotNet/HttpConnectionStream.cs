@@ -66,7 +66,7 @@ namespace HttpDotNet
 
         public void WriteMessage(HttpMessage message)
         {
-            message.WriteToStream(this);
+            message.WriteMessageToStream(this);
         }
 
         public bool KeepAlive { get; set; } = false;

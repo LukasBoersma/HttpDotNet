@@ -11,7 +11,7 @@ namespace HttpDotNet.Samples.Client
     {
         static void Main(string[] args)
         {
-            var uri = new Uri("https://lukas-boersma.com/en/");
+            var uri = "https://lukas-boersma.com/en/";
             var response = HttpClient.GetString(uri);
             Console.WriteLine($"Request to {uri} returned the following response:"); 
             Console.WriteLine(response);

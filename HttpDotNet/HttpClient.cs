@@ -48,7 +48,7 @@ namespace HttpDotNet
 
         #region  Convenience methods
 
-        public static HttpResponse GetResponse(string uri) => GetResponse(new Uri(uri))
+        public static HttpResponse GetResponse(string uri) => GetResponse(new Uri(uri));
         public static HttpResponse GetResponse(Uri uri)
         {
             int port = 80;
