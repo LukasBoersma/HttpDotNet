@@ -1,4 +1,6 @@
-# HttpDotNet
+# HttpDotNet (unmaintained!)
+
+**⚠️ Warning: This project is outdated and not maintained. I wrote it to learn more about HTTP internals. You should not use it for your projects, it probably has security issues.**
 
 A minimal HTTP server and client in pure managed .NET.
 
